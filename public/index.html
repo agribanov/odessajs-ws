@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Feed Zombie</title>
+    <style>
+        .container {
+            margin: 0 auto;
+            width: 50%
+        }
+
+        button {
+            font-size: 40px;
+            width: 100%;
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        socket.on('feed', function(msg){
+            console.log('feeding')
+        });
+
+        function feedZombie(){
+            socket.emit('feed','feed');
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+
+        <button id="feed" onclick="feedZombie()">Feed Zombie</button>
+    </div>
+</body>
+
+</html>
