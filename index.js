@@ -12,7 +12,8 @@ io.on('connection', function (socket) {
 
     io.emit('usersCount', connectedUsersCount);
 
-    socket.on('disconnect', function(){
+    socket.on('disconnect', function () {
+        connectedUsersCount--;
         io.emit('usersCount', connectedUsersCount);
     });
     socket.on('feed', function (msg) {
