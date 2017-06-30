@@ -8,7 +8,7 @@ let connectedUsersCount = 0;
 app.use(express.static('public'));
 
 io.on('connection', function (socket) {
-    connectedUsers++;
+    connectedUsersCount++;
 
     io.emit('usersCount', connectedUsersCount);
 
