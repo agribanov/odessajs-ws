@@ -2,12 +2,14 @@
 <html>
 
 <head>
-    <title>Feed Zombie</title>
+    <title>WS</title>
     <style>
         .container {
-            margin: 0 auto;
             width: 75%;
-            text-align: center;
+        }
+
+        ul > li{
+            list-style-type: none;
         }
 
         button {
@@ -22,30 +24,62 @@
             font-size: 40px;
         }
     </style>
-    <script src="/socket.io/socket.io.js"></script>
     <script>
-        var socket = io();
+        var socket = new WebSocket('ws://localhost:3000');
 
-        socket.on('feed', function(msg){
-            console.log('feeding')
-        });
-
-        socket.on('usersCount', function(msg){
-            document.getElementById('users').innerText = "Connected: " + msg;
-        });
-
-        function feedZombie(){
-            socket.emit('feed','feed');
+        var eventHandlers = {
+            default: defaultHandler,
+            usersCount: usersCountHandler,
+            message: messageHandler,
+        };
+        
+        function defaultHandler(data, event){
+            console.error('Unhadled event', event)
         }
+
+        function usersCountHandler(data){
+            document.getElementById('users').innerHTML = 'Connected: ' + data;
+        }
+
+        function messageHandler(data){
+            var li = document.createElement('li');
+            li.innerHTML = '<strong>'+ data.sender +'</strong>: '+ data.body;
+            document.getElementById('messages').appendChild(li)
+        }
+
+        // Handle any errors that occur.
+        socket.onerror = function(error) {
+          console.error('WebSocket Error: ' + error);
+        };
+        
+        
+        // Show a connected message when the WebSocket is opened.
+        socket.onopen = function(event) {
+          console.log('Connected to: ' + event.currentTarget.url);
+        };
+        
+        
+        // Handle messages sent by the server.
+        socket.onmessage = function(event) {
+          var message = JSON.parse(event.data);
+          console.log('got message', message)
+
+          var hadler = eventHandlers[message.event] || eventHandlers['default'];
+          hadler(message.data, message);
+        };
+
+        // Show a disconnected message when the WebSocket is closed.
+        socket.onclose = function(event) {
+          console.log('socket disconnected');
+        };
     </script>
 </head>
 
 <body>
     <div class="container">
-        <a href="https://goo.gl/sc7A1x">https://goo.gl/sc7A1x</a>
-        <img src="qrcode.png" alt="QR">
-        <div id="users"></div>
-        <button id="feed" onclick="feedZombie()">Feed Zombie</button>
+        <h2 id="users"></h2>
+        <ul id="messages">
+        </ul>
     </div>
 </body>
 
